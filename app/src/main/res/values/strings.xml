@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">FetchList</string>
+    <string name="button_text">Refresh</string>
+    <string name="title_text">List</string>
+</resources>
