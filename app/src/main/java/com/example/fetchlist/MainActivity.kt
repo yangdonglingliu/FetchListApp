@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,9 +25,12 @@ class MainActivity : AppCompatActivity() {
             viewModel.refreshData()
         }
 
-        viewModel.fetchedJsonData.observe(this, Observer { jsonData ->
-            if (jsonData != null) {
+        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
 
+        viewModel.fetchedJsonData.observe(this, Observer { fetchedJsonData ->
+            if (fetchedJsonData != null) {
+                recyclerView.adapter = ItemAdapter(fetchedJsonData)
+                recyclerView.setHasFixedSize(true)
             }
         })
     }

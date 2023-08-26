@@ -1,18 +1,21 @@
 package com.example.fetchlist
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.json.JSONObject
 import java.io.IOException
+import java.lang.Exception
 
 class MyViewModel : ViewModel() {
     private val client = OkHttpClient()
-    val fetchedJsonData: MutableLiveData<JSONObject> = MutableLiveData()
+    val fetchedJsonData: MutableLiveData<List<MyData>?> = MutableLiveData()
 
     init {
         fetchData()
@@ -25,20 +28,19 @@ class MyViewModel : ViewModel() {
 
         client.newCall(request).enqueue(object: Callback {
             override fun onFailure(call: Call, e: IOException) {
-                TODO("Not yet implemented")
+                throw Exception("Fetch data call failed.")
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    val jsonDataString = response.body?.string()
+                    val jsonDataString: String? = response.body?.string()
                     if (jsonDataString != null) {
-                        val jsonObject = JSONObject(jsonDataString)
-                        fetchedJsonData.postValue(jsonObject)
-                    } else {
-                        TODO()
+                        fetchedJsonData.postValue(parseJsonData(jsonDataString))
+                    } else{
+                        throw Exception("The response body is null.")
                     }
                 } else {
-                    TODO("Not yet implemented")
+                    throw Exception("The response is not successful.")
                 }
             }
         })
@@ -48,9 +50,14 @@ class MyViewModel : ViewModel() {
         fetchData()
     }
 
-    private fun parseJsonData(jsonData: JSONObject): List<MyData> {
-        val dataList = mutableListOf<MyData>()
+    private fun parseJsonData(jsonData: String): List<MyData>? {
+        val moshi = Moshi.Builder().build()
 
-        return dataList
+        val myDataListType = Types.newParameterizedType(List::class.java, MyData::class.java)
+        val adapter = moshi.adapter<List<MyData>>(myDataListType)
+        val myDataList = adapter.fromJson(jsonData)
+        val myFilteredDataList = myDataList?.filter{!it.name.isNullOrEmpty()}
+        Log.i("Data List", myFilteredDataList.toString())
+        return myFilteredDataList
     }
 }
