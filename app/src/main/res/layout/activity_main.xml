@@ -30,16 +30,16 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.466" />
 
-        <Button
-            android:id="@+id/refreshButton"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="20dp"
-            android:text="@string/button_text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.5" />
+<!--        <Button-->
+<!--            android:id="@+id/refreshButton"-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:layout_marginEnd="20dp"-->
+<!--            android:text="@string/button_text"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintVertical_bias="0.5" />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -53,7 +53,7 @@
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+            android:id="@+id/parent_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"

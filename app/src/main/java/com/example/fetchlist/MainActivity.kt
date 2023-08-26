@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
@@ -20,17 +20,18 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
 
-        val refreshButton = findViewById<Button>(R.id.refreshButton)
-        refreshButton.setOnClickListener {
-            viewModel.refreshData()
-        }
+//        val refreshButton = findViewById<Button>(R.id.refreshButton)
+//        refreshButton.setOnClickListener {
+//            viewModel.refreshData()
+//        }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
+        val parentRecyclerView = findViewById<RecyclerView>(R.id.parent_recycler_view)
+        parentRecyclerView.setHasFixedSize(true)
+        parentRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        viewModel.fetchedJsonData.observe(this, Observer { fetchedJsonData ->
-            if (fetchedJsonData != null) {
-                recyclerView.adapter = ItemAdapter(fetchedJsonData)
-                recyclerView.setHasFixedSize(true)
+        viewModel.parsedJsonData.observe(this, Observer { parsedJsonData ->
+            if (parsedJsonData != null) {
+                parentRecyclerView.adapter = ParentRecyclerViewAdapter(parsedJsonData)
             }
         })
     }

@@ -15,7 +15,7 @@ import java.lang.Exception
 
 class MyViewModel : ViewModel() {
     private val client = OkHttpClient()
-    val fetchedJsonData: MutableLiveData<List<MyData>?> = MutableLiveData()
+    val parsedJsonData: MutableLiveData<List<ParentData>?> = MutableLiveData()
 
     init {
         fetchData()
@@ -35,7 +35,7 @@ class MyViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     val jsonDataString: String? = response.body?.string()
                     if (jsonDataString != null) {
-                        fetchedJsonData.postValue(parseJsonData(jsonDataString))
+                        parsedJsonData.postValue(parseJsonData(jsonDataString))
                     } else{
                         throw Exception("The response body is null.")
                     }
@@ -46,18 +46,35 @@ class MyViewModel : ViewModel() {
         })
     }
 
-    fun refreshData() {
-        fetchData()
-    }
+//    fun refreshData() {
+//        fetchData()
+//    }
 
-    private fun parseJsonData(jsonData: String): List<MyData>? {
+    private fun parseJsonData(jsonData: String): List<ParentData>? {
+
+        // parse Json data with moshi code gen
         val moshi = Moshi.Builder().build()
 
         val myDataListType = Types.newParameterizedType(List::class.java, MyData::class.java)
         val adapter = moshi.adapter<List<MyData>>(myDataListType)
         val myDataList = adapter.fromJson(jsonData)
+
+        // filter out the items with null or empty names
         val myFilteredDataList = myDataList?.filter{!it.name.isNullOrEmpty()}
-        Log.i("Data List", myFilteredDataList.toString())
-        return myFilteredDataList
+
+        return if (myFilteredDataList.isNullOrEmpty()) {
+            null
+        } else {
+            // build a map with key: listId and value: list of MyData with the listId
+            val listMap: Map<Int, List<MyData>> = myFilteredDataList.groupBy { it.listId }
+
+            // build a list of ParentData using the map
+            val parentDataList: List<ParentData> = listMap.map { (listId, items) ->
+                ParentData(listId, items.sortedBy { it.name }, true)
+            }
+
+            // sort the list of ParentData by listId
+            parentDataList.sortedBy { it.listId }
+        }
     }
 }
