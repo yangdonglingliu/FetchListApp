@@ -28,27 +28,31 @@ class MyViewModel : ViewModel() {
 
         client.newCall(request).enqueue(object: Callback {
             override fun onFailure(call: Call, e: IOException) {
-                throw Exception("Fetch data call failed.")
+                e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val jsonDataString: String? = response.body?.string()
-                    if (jsonDataString != null) {
-                        parsedJsonData.postValue(parseJsonData(jsonDataString))
-                    } else{
-                        throw Exception("The response body is null.")
+                try {
+                    if (response.isSuccessful) {
+
+                        // read the body as a string
+                        val jsonDataString: String = response.body!!.string()
+
+                        // no need to call the parsing function if the body is empty
+                        if (jsonDataString.isEmpty()) {
+                            parsedJsonData.postValue(null)
+                        } else {
+                            parsedJsonData.postValue(parseJsonData(jsonDataString))
+                        }
+                    } else {
+                        throw Exception("The response is not successful.")
                     }
-                } else {
-                    throw Exception("The response is not successful.")
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         })
     }
-
-//    fun refreshData() {
-//        fetchData()
-//    }
 
     private fun parseJsonData(jsonData: String): MutableList<ParentData>? {
 

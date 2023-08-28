@@ -18,12 +18,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
-
-//        val refreshButton = findViewById<Button>(R.id.refreshButton)
-//        refreshButton.setOnClickListener {
-//            viewModel.refreshData()
-//        }
+        viewModel = ViewModelProvider(this)[MyViewModel::class.java]
 
         val parentRecyclerView = findViewById<RecyclerView>(R.id.parent_recycler_view)
         parentRecyclerView.setHasFixedSize(true)
