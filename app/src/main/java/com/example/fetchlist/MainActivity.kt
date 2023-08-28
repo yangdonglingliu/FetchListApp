@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.parsedJsonData.observe(this, Observer { parsedJsonData ->
             if (parsedJsonData != null) {
-                parentRecyclerView.adapter = ParentRecyclerViewAdapter(parsedJsonData)
+                parentRecyclerView.adapter = ParentRecyclerViewAdapter(viewModel, parsedJsonData)
             }
         })
     }

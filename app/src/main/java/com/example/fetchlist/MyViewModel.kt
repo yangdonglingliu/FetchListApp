@@ -16,7 +16,7 @@ import kotlin.Exception
 
 class MyViewModel : ViewModel() {
 
-    val parsedJsonData: MutableLiveData<MutableList<ParentData>?> = MutableLiveData()
+    val parsedJsonData: MutableLiveData<List<ParentData>?> = MutableLiveData()
 
     init {
         viewModelScope.launch {
@@ -50,7 +50,7 @@ class MyViewModel : ViewModel() {
         }
     }
 
-    private fun parseJsonData(jsonData: String): MutableList<ParentData>? {
+    private fun parseJsonData(jsonData: String): List<ParentData>? {
 
         // parse Json data with moshi code gen
         val moshi = Moshi.Builder().build()
@@ -74,7 +74,13 @@ class MyViewModel : ViewModel() {
             }
 
             // sort the list of ParentData by listId
-            parentDataList.sortedBy { it.listId }.toMutableList()
+            parentDataList.sortedBy { it.listId }
         }
+    }
+
+    fun toggleExpandableState(parentDataList: List<ParentData>, position: Int) {
+        val parentData = parentDataList[position]
+        parentData.isExpandable = !parentData.isExpandable
+        parsedJsonData.value = parentDataList
     }
 }

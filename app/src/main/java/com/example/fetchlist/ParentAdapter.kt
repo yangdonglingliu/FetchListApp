@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 //private const val TAG = "ParentRecyclerViewAdapter"
-class ParentRecyclerViewAdapter (private val parentDataList: MutableList<ParentData>)
+class ParentRecyclerViewAdapter (private val viewModel: MyViewModel, private val parentDataList: List<ParentData>)
     : RecyclerView.Adapter<ParentRecyclerViewAdapter.ParentRecyclerViewHolder>() {
 
     inner class ParentRecyclerViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -44,8 +44,7 @@ class ParentRecyclerViewAdapter (private val parentDataList: MutableList<ParentD
         holder.childRecyclerView.visibility = if (parentData.isExpandable) View.GONE else View.VISIBLE
 
         holder.parentListCard.setOnClickListener {
-            parentData.isExpandable = !parentData.isExpandable
-            notifyItemChanged(position)
+            viewModel.toggleExpandableState(parentDataList, position)
         }
     }
 
