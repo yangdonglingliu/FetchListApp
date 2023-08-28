@@ -70,7 +70,7 @@ class MyViewModel : ViewModel() {
 
             // build a list of ParentData using the map
             val parentDataList: List<ParentData> = listMap.map { (listId, items) ->
-                ParentData(listId, items.sortedBy { it.name }, true)
+                ParentData(listId, items.sortedBy { it.name!!.substringAfter("Item ").toInt() }, true)
             }
 
             // sort the list of ParentData by listId

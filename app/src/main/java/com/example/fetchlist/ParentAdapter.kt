@@ -1,6 +1,7 @@
 package com.example.fetchlist
 
 import android.text.Layout
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+//private const val TAG = "ParentRecyclerViewAdapter"
 class ParentRecyclerViewAdapter (private val parentDataList: List<ParentData>)
     : RecyclerView.Adapter<ParentRecyclerViewAdapter.ParentRecyclerViewHolder>() {
 
@@ -19,6 +21,7 @@ class ParentRecyclerViewAdapter (private val parentDataList: List<ParentData>)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ParentRecyclerViewHolder {
+//        Log.i(TAG, "onCreateViewHolder")
         val adapterLayout = LayoutInflater.from(parent.context)
             .inflate(R.layout.parent_item, parent, false)
         return ParentRecyclerViewHolder(adapterLayout)
@@ -27,6 +30,8 @@ class ParentRecyclerViewAdapter (private val parentDataList: List<ParentData>)
     override fun getItemCount() = parentDataList.size
 
     override fun onBindViewHolder(holder: ParentRecyclerViewHolder, position: Int) {
+//        Log.i(TAG, "onBindViewHolder, position $position")
+
         val parentData = parentDataList[position]
 
         holder.parentListId.text = parentData.listId.toString()
