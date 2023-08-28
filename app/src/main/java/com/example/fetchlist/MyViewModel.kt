@@ -15,7 +15,7 @@ import java.lang.Exception
 
 class MyViewModel : ViewModel() {
     private val client = OkHttpClient()
-    val parsedJsonData: MutableLiveData<List<ParentData>?> = MutableLiveData()
+    val parsedJsonData: MutableLiveData<MutableList<ParentData>?> = MutableLiveData()
 
     init {
         fetchData()
@@ -50,7 +50,7 @@ class MyViewModel : ViewModel() {
 //        fetchData()
 //    }
 
-    private fun parseJsonData(jsonData: String): List<ParentData>? {
+    private fun parseJsonData(jsonData: String): MutableList<ParentData>? {
 
         // parse Json data with moshi code gen
         val moshi = Moshi.Builder().build()
@@ -74,7 +74,7 @@ class MyViewModel : ViewModel() {
             }
 
             // sort the list of ParentData by listId
-            parentDataList.sortedBy { it.listId }
+            parentDataList.sortedBy { it.listId }.toMutableList()
         }
     }
 }

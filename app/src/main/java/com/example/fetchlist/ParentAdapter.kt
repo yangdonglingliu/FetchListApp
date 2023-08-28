@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 //private const val TAG = "ParentRecyclerViewAdapter"
-class ParentRecyclerViewAdapter (private val parentDataList: List<ParentData>)
+class ParentRecyclerViewAdapter (private val parentDataList: MutableList<ParentData>)
     : RecyclerView.Adapter<ParentRecyclerViewAdapter.ParentRecyclerViewHolder>() {
 
     inner class ParentRecyclerViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
