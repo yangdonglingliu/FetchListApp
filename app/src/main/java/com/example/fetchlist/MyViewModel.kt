@@ -3,55 +3,51 @@ package com.example.fetchlist
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import okhttp3.Call
-import okhttp3.Callback
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import java.io.IOException
-import java.lang.Exception
+import kotlin.Exception
 
 class MyViewModel : ViewModel() {
-    private val client = OkHttpClient()
+
     val parsedJsonData: MutableLiveData<MutableList<ParentData>?> = MutableLiveData()
 
     init {
-        fetchData()
+        viewModelScope.launch {
+            fetchAndParseData()
+        }
     }
 
-    private fun fetchData() {
+    private suspend fun fetchAndParseData() {
+            try {
+                val jsonDataString: String = fetchData()
+                parsedJsonData.postValue(parseJsonData(jsonDataString))
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+    }
+
+    private suspend fun fetchData() : String {
+        val client = OkHttpClient()
+
         val request = Request.Builder()
             .url("https://fetch-hiring.s3.amazonaws.com/hiring.json")
             .build()
 
-        client.newCall(request).enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
+        return withContext(Dispatchers.IO) {
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                response.body!!.string()
+            } else {
+                throw IOException("The network response is not successful.")
             }
-
-            override fun onResponse(call: Call, response: Response) {
-                try {
-                    if (response.isSuccessful) {
-
-                        // read the body as a string
-                        val jsonDataString: String = response.body!!.string()
-
-                        // no need to call the parsing function if the body is empty
-                        if (jsonDataString.isEmpty()) {
-                            parsedJsonData.postValue(null)
-                        } else {
-                            parsedJsonData.postValue(parseJsonData(jsonDataString))
-                        }
-                    } else {
-                        throw Exception("The response is not successful.")
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        })
+        }
     }
 
     private fun parseJsonData(jsonData: String): MutableList<ParentData>? {
