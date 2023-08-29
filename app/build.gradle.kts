@@ -34,6 +34,7 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
 }
 
 dependencies {
@@ -54,4 +55,10 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:5.0.0-alpha.10")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
+
+    //androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+    //testImplementation("io.mockk:mockk:1.13.5")
+
 }
