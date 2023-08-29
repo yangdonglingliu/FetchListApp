@@ -63,10 +63,24 @@ Upon user interaction with the screen, in our case a click event, the View will 
 
 With the scope of this project, the data are fetched once on the creation of the activity and saved in memory. If the data is very large and the data handling is more complex, then it could be worth setting up a local database for the data. If the data on the cloud updates frequently, then a refresh feature such as a button or a swipe down refresh could be added for the user to manually update the data.
 
-## Tests
-Unit tests for handling the network responses and the data processing are done. The integration and UI of app are also tested manually on an Pixel 4 device with the help of the emulator. 
-
 ### Project Configuration
 - minimum SDK: API 24 ("Nougat"; Android 7.0; 96% usage)
 - target SDK: API 33 ("Tiramisu"; Android 13.0)
-- Tested on  Pixel 4 with S (API level 31, Android 12.0, System ABI x86_64)
+- Tested on:
+    - Pixel 7 with Tiramisu (API level 33, Android 13.0, x86_64)
+    - Pixel 4 with S (API level 31, Android 12.0, x86_64)
+    - Pixel 2 with Nougat (API level 24, Android 7.0, x86) - Unexpected behavior noticed: If list 3 is expanded and the user clicks to expand list 2 (positioned above list 3), then the position of list 3 remains the same and list 2 expands upwards showing the bottom of the list.
+    - Pixel C with R (API level 30, Android 11.0, x86) - The device is glitchy on my emulator but the app functions normally
+
+## Tests
+Unit tests for handling the network responses and the data processing are done. The integration and UI of app are also tested manually on multiple android devices with the help of the emulator. 
+
+## References
+- OkHttp: https://www.digitalocean.com/community/tutorials/okhttp-android-example-tutorial
+- Moshi GitHub repo: https://github.com/square/moshi
+- KSP quick start: https://kotlinlang.org/docs/ksp-quickstart.html
+- Migrate from kapt to ksp: https://developer.android.com/build/migrate-to-ksp
+- Basic RecyclerView: https://developer.android.com/codelabs/basic-android-kotlin-training-recyclerview-scrollable-list#0
+- Expandable Nested RecyclerView: Expandable Nested RecyclerView || Android studio Tutorial 2023
+- Test with coroutines: https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-test/
+- MockWebServer: https://medium.com/@veeresh.charantimath8/mockwebserver-with-kotlin-flows-110d5c2f70e7
