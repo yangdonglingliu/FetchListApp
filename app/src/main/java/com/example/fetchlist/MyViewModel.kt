@@ -9,48 +9,66 @@ import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import kotlin.Exception
 
 class MyViewModel : ViewModel() {
 
     val parsedJsonData: MutableLiveData<List<ParentData>?> = MutableLiveData()
-
     init {
         viewModelScope.launch {
-            fetchAndParseData()
+            fetchAndParseData("https://fetch-hiring.s3.amazonaws.com/hiring.json".toHttpUrl())
         }
     }
 
-    private suspend fun fetchAndParseData() {
-            try {
-                val jsonDataString: String = fetchData()
-                parsedJsonData.postValue(parseJsonData(jsonDataString))
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+    internal suspend fun fetchAndParseData(address: HttpUrl) {
+        lateinit var jsonDataString: String
+        try {
+            jsonDataString= fetchData(address)
+
+        } catch (e: IOException) { // IO Exception during fetching
+            e.printStackTrace()
+            parsedJsonData.postValue(null)
+            return
+        }
+
+        parsedJsonData.postValue(parseJsonData(jsonDataString))
+
     }
 
-    private suspend fun fetchData() : String {
+    internal suspend fun fetchData(address: HttpUrl) : String {
         val client = OkHttpClient()
 
         val request = Request.Builder()
-            .url("https://fetch-hiring.s3.amazonaws.com/hiring.json")
+            .url(address)
             .build()
 
         return withContext(Dispatchers.IO) {
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
-                response.body!!.string()
+
+                // successful response should have a non-null body (can be empty), but just in case..
+                val fetchedData = response.body?.string()
+                if (fetchedData.isNullOrEmpty()) {
+                    ""
+                } else {
+                    fetchedData
+                }
             } else {
                 throw IOException("The network response is not successful.")
             }
         }
     }
 
-    private fun parseJsonData(jsonData: String): List<ParentData>? {
+    internal fun parseJsonData(jsonData: String?): List<ParentData>? {
+
+        // skip the work
+        if (jsonData.isNullOrEmpty()) {
+            return null
+        }
 
         // parse Json data with moshi code gen
         val moshi = Moshi.Builder().build()
@@ -78,9 +96,12 @@ class MyViewModel : ViewModel() {
         }
     }
 
-    fun toggleExpandableState(parentDataList: List<ParentData>, position: Int) {
-        val parentData = parentDataList[position]
-        parentData.isExpandable = !parentData.isExpandable
-        parsedJsonData.value = parentDataList
-    }
+//     fun toggleExpandableState(parentDataList: List<ParentData>, position: Int) {
+//
+//        val updatedParentDataList = parentDataList.toMutableList()
+//        val parentData = updatedParentDataList[position]
+//        parentData.isExpandable = !parentData.isExpandable
+//        parsedJsonData.value = updatedParentDataList
+
+//    }
 }

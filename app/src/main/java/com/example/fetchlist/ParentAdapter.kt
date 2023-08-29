@@ -1,6 +1,5 @@
 package com.example.fetchlist
 
-import android.text.Layout
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +23,7 @@ class ParentRecyclerViewAdapter (private val viewModel: MyViewModel, private val
 //        Log.i(TAG, "onCreateViewHolder")
         val adapterLayout = LayoutInflater.from(parent.context)
             .inflate(R.layout.parent_item, parent, false)
+
         return ParentRecyclerViewHolder(adapterLayout)
     }
 
@@ -40,11 +40,13 @@ class ParentRecyclerViewAdapter (private val viewModel: MyViewModel, private val
         holder.childRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
         holder.childRecyclerView.adapter = ChildRecyclerViewAdapter(parentData.subList)
 
-        // expandability
+        // expandable functionality
         holder.childRecyclerView.visibility = if (parentData.isExpandable) View.GONE else View.VISIBLE
 
         holder.parentListCard.setOnClickListener {
-            viewModel.toggleExpandableState(parentDataList, position)
+            //viewModel.toggleExpandableState(parentDataList, position)
+            parentData.isExpandable = !parentData.isExpandable
+            notifyItemChanged(position)
         }
     }
 
