@@ -137,14 +137,14 @@ class MyViewModel : ViewModel() {
                     ParentData.copy(subList = filteredSubList)
                 }
             }
-            // if not empty, it means the filtering process was done already and we can directly post value
-            parsedJsonLiveData.postValue(filteredParsedJsonData)
+            // if not empty, it means the filtering process was done already and we can directly set value
+            parsedJsonLiveData.value = filteredParsedJsonData
         }
 
         // from enabled to disabled
         else {
             filterEnabled = false
-            parsedJsonLiveData.postValue(parsedJsonData)
+            parsedJsonLiveData.value = parsedJsonData
         }
 
     }
