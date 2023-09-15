@@ -1,6 +1,7 @@
 package com.example.fetchlist
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,8 +18,13 @@ import java.io.IOException
 
 class MyViewModel : ViewModel() {
 
-    val parsedJsonLiveData: MutableLiveData<List<ParentData>> = MutableLiveData()
-    val expandableStatesLiveData: MutableLiveData<Pair<Int?, List<Boolean>>> = MutableLiveData()
+    private val _parsedJsonLiveData: MutableLiveData<List<ParentData>> = MutableLiveData()
+    private val _expandableStatesLiveData: MutableLiveData<Pair<Int?, List<Boolean>>> = MutableLiveData()
+
+    val parsedJsonLiveData: LiveData<List<ParentData>>
+        get() = _parsedJsonLiveData
+    val expandableStatesLiveData: LiveData<Pair<Int?, List<Boolean>>>
+        get() = _expandableStatesLiveData
 
     private var parsedJsonData: List<ParentData> = emptyList()
     private var filteredParsedJsonData: List<ParentData> = emptyList()
@@ -37,13 +43,13 @@ class MyViewModel : ViewModel() {
 
         } catch (e: IOException) { // IO Exception during fetching
             e.printStackTrace()
-            parsedJsonLiveData.postValue(emptyList())
-            expandableStatesLiveData.postValue(Pair(null, emptyList<Boolean>().toMutableList()))
+            _parsedJsonLiveData.postValue(emptyList())
+            _expandableStatesLiveData.postValue(Pair(null, emptyList()))
             return
         }
         parsedJsonData = parseJsonData((jsonDataString))
-        parsedJsonLiveData.postValue(parsedJsonData)
-        expandableStatesLiveData.postValue(Pair(null, MutableList(parsedJsonData.size) {true}))
+        _parsedJsonLiveData.postValue(parsedJsonData)
+        _expandableStatesLiveData.postValue(Pair(null, MutableList(parsedJsonData.size) {true}))
 
     }
 
@@ -114,10 +120,10 @@ class MyViewModel : ViewModel() {
      fun toggleExpandableState(position: Int) {
          val expandableStatesList = expandableStatesLiveData.value?.second
          if (expandableStatesList.isNullOrEmpty()) return
-         val newList = expandableStatesList.mapIndexed() {index, state ->
+         val newList = expandableStatesList.mapIndexed {index, state ->
              if (index == position) !state else state
          }
-         expandableStatesLiveData.value = Pair(position, newList)
+         _expandableStatesLiveData.value = Pair(position, newList)
 
     }
 
@@ -130,21 +136,21 @@ class MyViewModel : ViewModel() {
         if (boxChecked) {
             filterEnabled = true
             if (filteredParsedJsonData.isEmpty()) {
-                filteredParsedJsonData = parsedJsonData.map { ParentData ->
-                    val filteredSubList = ParentData.subList.filter { MyData ->
-                        !MyData.name.isNullOrEmpty()
+                filteredParsedJsonData = parsedJsonData.map { parentData ->
+                    val filteredSubList = parentData.subList.filter { myData ->
+                        !myData.name.isNullOrEmpty()
                     }
-                    ParentData.copy(subList = filteredSubList)
+                    parentData.copy(subList = filteredSubList)
                 }
             }
             // if not empty, it means the filtering process was done already and we can directly set value
-            parsedJsonLiveData.value = filteredParsedJsonData
+            _parsedJsonLiveData.value = filteredParsedJsonData
         }
 
         // from enabled to disabled
         else {
             filterEnabled = false
-            parsedJsonLiveData.value = parsedJsonData
+            _parsedJsonLiveData.value = parsedJsonData
         }
 
     }

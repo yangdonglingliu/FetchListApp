@@ -9,7 +9,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-private const val TAG = "ParentRecyclerViewAdapter"
+//private const val TAG = "ParentRecyclerViewAdapter"
 class ParentRecyclerViewAdapter (private val viewModel: MyViewModel,
                                  private var parentDataList: List<ParentData>,
                                  private var expandableStatesList: List<Boolean>)
