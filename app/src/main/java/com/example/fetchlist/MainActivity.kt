@@ -25,14 +25,23 @@ class MainActivity : AppCompatActivity() {
         parentRecyclerView.setHasFixedSize(true)
         parentRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val parentAdapter = ParentRecyclerViewAdapter(emptyList())
+        val parentAdapter = ParentRecyclerViewAdapter(viewModel, emptyList(), emptyList())
         parentRecyclerView.adapter = parentAdapter
 
         viewModel.parsedJsonLiveData.observe(this, Observer { parsedJsonLiveData ->
-            if (parsedJsonLiveData != null) {
+            if (parsedJsonLiveData.isNotEmpty()) {
 //                parentRecyclerView.adapter = ParentRecyclerViewAdapter(parsedJsonData)
                 parentAdapter.updateParentData(parsedJsonLiveData)
             }
+        })
+
+        viewModel.expandableStatesLiveData.observe(this, Observer { expandableStatesLiveData ->
+            val positionChanged = expandableStatesLiveData.first
+            val expandableStatesList = expandableStatesLiveData.second
+            if (expandableStatesList.isNotEmpty()) {
+                parentAdapter.updateExpandableStates(positionChanged, expandableStatesList)
+            }
+
         })
 
         val filterEnableCheckBox = findViewById<CheckBox>(R.id.checkbox_filter)

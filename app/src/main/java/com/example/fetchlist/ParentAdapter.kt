@@ -9,8 +9,10 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-//private const val TAG = "ParentRecyclerViewAdapter"
-class ParentRecyclerViewAdapter (private var parentDataList: List<ParentData>)
+private const val TAG = "ParentRecyclerViewAdapter"
+class ParentRecyclerViewAdapter (private val viewModel: MyViewModel,
+                                 private var parentDataList: List<ParentData>,
+                                 private var expandableStatesList: List<Boolean>)
     : RecyclerView.Adapter<ParentRecyclerViewAdapter.ParentRecyclerViewHolder>() {
 
     inner class ParentRecyclerViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -32,28 +34,50 @@ class ParentRecyclerViewAdapter (private var parentDataList: List<ParentData>)
     override fun onBindViewHolder(holder: ParentRecyclerViewHolder, position: Int) {
 //        Log.i(TAG, "onBindViewHolder, position $position")
 
-        val parentData = parentDataList[position]
+        if (parentDataList.isNotEmpty()) {
+            val parentData = parentDataList[position]
 
-        holder.parentListId.text = parentData.listId.toString()
+            holder.parentListId.text = parentData.listId.toString()
 
-        holder.childRecyclerView.setHasFixedSize(true)
-        holder.childRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-        holder.childRecyclerView.adapter = ChildRecyclerViewAdapter(parentData.subList)
+            holder.childRecyclerView.setHasFixedSize(true)
+            holder.childRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
+            holder.childRecyclerView.adapter = ChildRecyclerViewAdapter(parentData.subList)
 
-        // expandable functionality
-        holder.childRecyclerView.visibility = if (parentData.isExpandable) View.GONE else View.VISIBLE
+            // expandable functionality
+            if (expandableStatesList.isEmpty()) {
+                holder.childRecyclerView.visibility = View.GONE
+            }
+            else {
+                holder.childRecyclerView.visibility =
+                    if (expandableStatesList[position]) View.GONE else View.VISIBLE
 
-        holder.parentListCard.setOnClickListener {
-            //viewModel.toggleExpandableState(parentDataList, position)
-            parentData.isExpandable = !parentData.isExpandable
-            notifyItemChanged(position)
+                holder.parentListCard.setOnClickListener {
+                    viewModel.toggleExpandableState(position)
+//                parentData.isExpandable = !parentData.isExpandable
+//                notifyItemChanged(position)
+                }
+//                Log.i(TAG, "onClickListener set up.")
+            }
         }
     }
 
     fun updateParentData(newData: List<ParentData>) {
         parentDataList = newData
+//        Log.i(TAG, "updateParentData is called.")
         notifyDataSetChanged()
+    }
 
+    fun updateExpandableStates(position: Int?, newData: List<Boolean>) {
+        expandableStatesList = newData
+        if (position == null) {
+            notifyDataSetChanged()
+//            Log.i(TAG, "expandableStateList updated.")
+        }
+        else {
+            notifyItemChanged(position)
+//            Log.i(TAG, "notifyItemChanged called.")
+//            Log.i(TAG, "current expandableStatesList is ${expandableStatesList.toString()}")
+        }
     }
 
 

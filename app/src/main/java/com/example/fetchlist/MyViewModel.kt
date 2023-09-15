@@ -17,7 +17,8 @@ import java.io.IOException
 
 class MyViewModel : ViewModel() {
 
-    val parsedJsonLiveData: MutableLiveData<List<ParentData>?> = MutableLiveData()
+    val parsedJsonLiveData: MutableLiveData<List<ParentData>> = MutableLiveData()
+    val expandableStatesLiveData: MutableLiveData<Pair<Int?, List<Boolean>>> = MutableLiveData()
 
     private var parsedJsonData: List<ParentData> = emptyList()
     private var filteredParsedJsonData: List<ParentData> = emptyList()
@@ -37,10 +38,12 @@ class MyViewModel : ViewModel() {
         } catch (e: IOException) { // IO Exception during fetching
             e.printStackTrace()
             parsedJsonLiveData.postValue(emptyList())
+            expandableStatesLiveData.postValue(Pair(null, emptyList<Boolean>().toMutableList()))
             return
         }
         parsedJsonData = parseJsonData((jsonDataString))
         parsedJsonLiveData.postValue(parsedJsonData)
+        expandableStatesLiveData.postValue(Pair(null, MutableList(parsedJsonData.size) {true}))
 
     }
 
@@ -100,7 +103,7 @@ class MyViewModel : ViewModel() {
                     {!it.name.isNullOrEmpty()},
                     {if (!it.name.isNullOrEmpty()) it.name.substringAfter("Item ").toInt() else 0}
                 ))
-                ParentData(listId, sortedItems, true)
+                ParentData(listId, sortedItems)
             }
 
             // sort the list of ParentData by listId
@@ -108,14 +111,15 @@ class MyViewModel : ViewModel() {
         }
     }
 
-//     fun toggleExpandableState(parentDataList: List<ParentData>, position: Int) {
-//
-//        val updatedParentDataList = parentDataList.toMutableList()
-//        val parentData = updatedParentDataList[position]
-//        parentData.isExpandable = !parentData.isExpandable
-//        parsedJsonData.value = updatedParentDataList
+     fun toggleExpandableState(position: Int) {
+         val expandableStatesList = expandableStatesLiveData.value?.second
+         if (expandableStatesList.isNullOrEmpty()) return
+         val newList = expandableStatesList.mapIndexed() {index, state ->
+             if (index == position) !state else state
+         }
+         expandableStatesLiveData.value = Pair(position, newList)
 
-//    }
+    }
 
     fun toggleFilterEnabledState(boxChecked: Boolean) {
         if (parsedJsonData.isEmpty()) {
