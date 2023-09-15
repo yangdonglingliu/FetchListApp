@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import android.widget.CheckBox
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,11 +28,17 @@ class MainActivity : AppCompatActivity() {
         val parentAdapter = ParentRecyclerViewAdapter(emptyList())
         parentRecyclerView.adapter = parentAdapter
 
-        viewModel.parsedJsonData.observe(this, Observer { parsedJsonData ->
-            if (parsedJsonData != null) {
+        viewModel.parsedJsonLiveData.observe(this, Observer { parsedJsonLiveData ->
+            if (parsedJsonLiveData != null) {
 //                parentRecyclerView.adapter = ParentRecyclerViewAdapter(parsedJsonData)
-                parentAdapter.updateParentData(parsedJsonData)
+                parentAdapter.updateParentData(parsedJsonLiveData)
             }
         })
+
+        val filterEnableCheckBox = findViewById<CheckBox>(R.id.checkbox_filter)
+        filterEnableCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            viewModel.toggleFilterEnabledState(isChecked)
+        }
+
     }
 }

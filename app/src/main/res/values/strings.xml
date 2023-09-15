@@ -2,4 +2,5 @@
     <string name="app_name">FetchList</string>
     <string name="button_text">Refresh</string>
     <string name="title_text">List</string>
+    <string name="checkbox_text">Filter</string>
 </resources>

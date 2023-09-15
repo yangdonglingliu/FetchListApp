@@ -17,7 +17,12 @@ import java.io.IOException
 
 class MyViewModel : ViewModel() {
 
-    val parsedJsonData: MutableLiveData<List<ParentData>?> = MutableLiveData()
+    val parsedJsonLiveData: MutableLiveData<List<ParentData>?> = MutableLiveData()
+
+    private var parsedJsonData: List<ParentData> = emptyList()
+    private var filteredParsedJsonData: List<ParentData> = emptyList()
+    private var filterEnabled: Boolean = false
+
     init {
         viewModelScope.launch {
             fetchAndParseData("https://fetch-hiring.s3.amazonaws.com/hiring.json".toHttpUrl())
@@ -31,11 +36,11 @@ class MyViewModel : ViewModel() {
 
         } catch (e: IOException) { // IO Exception during fetching
             e.printStackTrace()
-            parsedJsonData.postValue(null)
+            parsedJsonLiveData.postValue(emptyList())
             return
         }
-
-        parsedJsonData.postValue(parseJsonData(jsonDataString))
+        parsedJsonData = parseJsonData((jsonDataString))
+        parsedJsonLiveData.postValue(parsedJsonData)
 
     }
 
@@ -63,11 +68,11 @@ class MyViewModel : ViewModel() {
         }
     }
 
-    internal fun parseJsonData(jsonData: String?): List<ParentData>? {
+    internal fun parseJsonData(jsonData: String?): List<ParentData> {
 
         // skip the work
         if (jsonData.isNullOrEmpty()) {
-            return null
+            return emptyList()
         }
 
         // parse Json data with moshi code gen
@@ -77,18 +82,25 @@ class MyViewModel : ViewModel() {
         val adapter = moshi.adapter<List<MyData>>(myDataListType)
         val myDataList = adapter.fromJson(jsonData)
 
-        // filter out the items with null or empty names
-        val myFilteredDataList = myDataList?.filter{!it.name.isNullOrEmpty()}
+//        // filter out the items with null names
+//        val myFilteredDataList = myDataList?.filter{!it.name.isNullOrEmpty()}
 
-        return if (myFilteredDataList.isNullOrEmpty()) {
-            null
+        return if (myDataList.isNullOrEmpty()) {
+            emptyList()
         } else {
             // build a map with key: listId and value: list of MyData with the listId
-            val listMap: Map<Int, List<MyData>> = myFilteredDataList.groupBy { it.listId }
+            val listMap: Map<Int, List<MyData>> = myDataList.groupBy { it.listId }
 
             // build a list of ParentData using the map
             val parentDataList: List<ParentData> = listMap.map { (listId, items) ->
-                ParentData(listId, items.sortedBy { it.name!!.substringAfter("Item ").toInt() }, true)
+//                ParentData(listId, items.sortedBy { it.name!!.substringAfter("Item ").toInt() }, true)
+
+                // sort the items based on name; if null or empty, put in front
+                val sortedItems = items.sortedWith(compareBy(
+                    {!it.name.isNullOrEmpty()},
+                    {if (!it.name.isNullOrEmpty()) it.name.substringAfter("Item ").toInt() else 0}
+                ))
+                ParentData(listId, sortedItems, true)
             }
 
             // sort the list of ParentData by listId
@@ -104,4 +116,32 @@ class MyViewModel : ViewModel() {
 //        parsedJsonData.value = updatedParentDataList
 
 //    }
+
+    fun toggleFilterEnabledState(boxChecked: Boolean) {
+        if (parsedJsonData.isEmpty()) {
+            return
+        }
+
+        // from disabled to enabled
+        if (boxChecked) {
+            filterEnabled = true
+            if (filteredParsedJsonData.isEmpty()) {
+                filteredParsedJsonData = parsedJsonData.map { ParentData ->
+                    val filteredSubList = ParentData.subList.filter { MyData ->
+                        !MyData.name.isNullOrEmpty()
+                    }
+                    ParentData.copy(subList = filteredSubList)
+                }
+            }
+            // if not empty, it means the filtering process was done already and we can directly post value
+            parsedJsonLiveData.postValue(filteredParsedJsonData)
+        }
+
+        // from enabled to disabled
+        else {
+            filterEnabled = false
+            parsedJsonLiveData.postValue(parsedJsonData)
+        }
+
+    }
 }
