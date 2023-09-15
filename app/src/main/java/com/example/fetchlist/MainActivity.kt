@@ -24,9 +24,13 @@ class MainActivity : AppCompatActivity() {
         parentRecyclerView.setHasFixedSize(true)
         parentRecyclerView.layoutManager = LinearLayoutManager(this)
 
+        val parentAdapter = ParentRecyclerViewAdapter(emptyList())
+        parentRecyclerView.adapter = parentAdapter
+
         viewModel.parsedJsonData.observe(this, Observer { parsedJsonData ->
             if (parsedJsonData != null) {
-                parentRecyclerView.adapter = ParentRecyclerViewAdapter(viewModel, parsedJsonData)
+//                parentRecyclerView.adapter = ParentRecyclerViewAdapter(parsedJsonData)
+                parentAdapter.updateParentData(parsedJsonData)
             }
         })
     }

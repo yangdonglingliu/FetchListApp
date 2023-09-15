@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 //private const val TAG = "ParentRecyclerViewAdapter"
-class ParentRecyclerViewAdapter (private val viewModel: MyViewModel, private val parentDataList: List<ParentData>)
+class ParentRecyclerViewAdapter (private var parentDataList: List<ParentData>)
     : RecyclerView.Adapter<ParentRecyclerViewAdapter.ParentRecyclerViewHolder>() {
 
     inner class ParentRecyclerViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -48,6 +48,12 @@ class ParentRecyclerViewAdapter (private val viewModel: MyViewModel, private val
             parentData.isExpandable = !parentData.isExpandable
             notifyItemChanged(position)
         }
+    }
+
+    fun updateParentData(newData: List<ParentData>) {
+        parentDataList = newData
+        notifyDataSetChanged()
+
     }
 
 
